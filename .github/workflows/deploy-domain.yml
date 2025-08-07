@@ -1,0 +1,39 @@
+name: Deploy Domains
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Apply all domain configs
+        run: |
+          for dir in web_game/*; do
+            if [ -d "$dir" ]; then
+              echo "Applying for $dir"
+              if [ -f "$dir/certificate.yaml" ]; then
+                echo "Applying certificate.yaml"
+                kubectl apply -f "$dir/certificate.yaml"
+              else
+                echo "❌ $dir/certificate.yaml not found"
+              fi
+
+              if [ -f "$dir/ingress.yaml" ]; then
+                echo "Applying ingress.yaml"
+                kubectl apply -f "$dir/ingress.yaml"
+              else
+                echo "❌ $dir/ingress.yaml not found"
+              fi
+            fi
+          done
