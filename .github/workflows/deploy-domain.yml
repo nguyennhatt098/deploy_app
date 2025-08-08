@@ -36,7 +36,7 @@ jobs:
                 echo "Applying ingress.yaml"
                 kubectl apply -f "$dir/ingress.yaml"
               else
-                echo "❌ $dir/ingress.yaml not found"
+                echo "❌ $dir/ingress.yaml not found2"
               fi
             fi
           done
