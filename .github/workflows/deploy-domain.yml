@@ -20,9 +20,9 @@ jobs:
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Apply all domain configs
+      - name: Apply all domain configs in apps
         run: |
-          for dir in web_game/*; do
+          for dir in apps/*; do
             if [ -d "$dir" ]; then
               echo "Applying for $dir"
               if [ -f "$dir/certificate.yaml" ]; then
