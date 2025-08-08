@@ -20,6 +20,16 @@ jobs:
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
+
+      - name: Apply ClusterIssuer
+        run: |
+          if [ -f clusterissuer-letsencrypt-prod.yaml ]; then
+            echo "Applying clusterissuer-letsencrypt-prod.yaml"
+            kubectl apply -f clusterissuer-letsencrypt-prod.yaml
+          else
+            echo "❌ clusterissuer-letsencrypt-prod.yaml not found"
+          fi
+
       - name: Apply all domain configs in apps
         run: |
           for dir in apps/*; do
