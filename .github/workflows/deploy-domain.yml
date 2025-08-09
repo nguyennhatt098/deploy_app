@@ -20,7 +20,6 @@ jobs:
           echo "${{ secrets.KUBECONFIG_B64 }}" | base64 -d > ~/.kube/config
           chmod 600 ~/.kube/config
 
-
       - name: Apply ClusterIssuer
         run: |
           if [ -f clusterissuer-letsencrypt-prod.yaml ]; then
@@ -50,3 +49,7 @@ jobs:
               fi
             fi
           done
+
+      - name: Restart Traefik to reload SSL
+        run: |
+          kubectl rollout restart deployment/traefik -n kube
