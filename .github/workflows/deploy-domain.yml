@@ -31,7 +31,7 @@ jobs:
 
       - name: Tạo các namespace cần thiết
         run: |
-          for ns in backup elasticsearch kibana postgresql; do
+          for ns in backup elasticsearch kibana postgresql redis; do
             kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
           done
 
