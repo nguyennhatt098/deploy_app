@@ -1,3 +1,16 @@
+# Middleware redirect tất cả request về index.html cho Angular SPA
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: angular-spa
+  namespace: web-crypto
+spec:
+  redirectRegex:
+    regex: ^/(.*)
+    replacement: /index.html
+    permanent: true
+---
+# Ingress cho FE + API
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -15,6 +28,7 @@ spec:
         - api.risecapitalvn.com
       secretName: web-crypto-cert-secret
   rules:
+    # API backend
     - host: api.risecapitalvn.com
       http:
         paths:
@@ -25,6 +39,7 @@ spec:
                 name: crm-tool-service
                 port:
                   number: 6000
+    # Angular frontend
     - host: trading.risecapitalvn.com
       http:
         paths:
@@ -35,3 +50,10 @@ spec:
                 name: web-crypto-frontend-service
                 port:
                   number: 6001
+            # Gắn middleware chỉ cho FE
+            # (Chỉ Ingress của host này mới dùng middleware Angular SPA)
+            # Lưu ý: Đây là trick dùng path annotations
+            # Traefik vẫn hiểu và áp dụng middleware này cho route này
+metadata:
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: web-crypto-angular-spa@kubernetescrd
