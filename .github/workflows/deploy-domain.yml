@@ -52,4 +52,4 @@ jobs:
 
       - name: Restart Traefik to reload SSL
         run: |
-          kubectl rollout restart deployment/traefik -n kube
+          kubectl rollout restart deployment/traefik -n kube-system
