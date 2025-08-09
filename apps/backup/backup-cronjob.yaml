@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-job
+  namespace: backup
+spec:
+  schedule: "0 2 */2 * *" # Chạy lúc 2h sáng mỗi 2 ngày
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: alpine:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  # Backup toàn bộ DB PostgreSQL ra file tar
+                  pg_dumpall -h $PG_HOST -U $PG_USER | tar -cvf /backup/all_db_$(date +%F).tar -
+                  # Xóa file backup cũ hơn 7 ngày
+                  find /backup -type f -mtime +7 -delete
+              env:
+                - name: PG_HOST
+                  value: "postgres-service"
+                - name: PG_USER
+                  value: "postgres"
+                - name: PGPASSWORD
+                  value: "Anhyeuem123@"
+                # Không cần khai báo PG_DB và ES_HOST nữa
+              volumeMounts:
+                - name: backup-volume
+                  mountPath: /backup
+          restartPolicy: OnFailure
+          volumes:
+            - name: backup-volume
+              persistentVolumeClaim:
+                claimName: backup-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backup-pvc
+  namespace: backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
