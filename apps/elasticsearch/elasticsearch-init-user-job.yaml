@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: elasticsearch-init-user
+  namespace: elasticsearch
+spec:
+  template:
+    spec:
+      containers:
+        - name: init-user
+          image: curlimages/curl:8.4.0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sleep 30 # Đợi Elasticsearch khởi động
+              curl -u elastic:Anhyeuem123@ -X POST "http://elasticsearch:9200/_security/user/kibana_system" -H "Content-Type: application/json" -d '{"password": "Anhyeuem123@", "roles": ["kibana_system"], "full_name": "Kibana System User"}'
+      restartPolicy: OnFailure
