@@ -16,6 +16,8 @@ spec:
                 - /bin/sh
                 - -c
                 - |
+                  # Tạo folder backup nếu chưa có
+                  mkdir -p /backup
                   # Backup toàn bộ DB PostgreSQL ra file tar
                   pg_dumpall -h $PG_HOST -U $PG_USER | tar -cvf /backup/all_db_$(date +%F).tar -
                   # Xóa file backup cũ hơn 7 ngày
