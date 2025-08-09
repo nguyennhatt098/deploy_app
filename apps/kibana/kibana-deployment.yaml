@@ -22,7 +22,7 @@ spec:
             - name: ELASTICSEARCH_USERNAME
               value: "elastic"
             - name: ELASTICSEARCH_PASSWORD
-              value: "your_password"
+              value: "Anhyeuem123@"
           ports:
             - containerPort: 5601
           resources:
