@@ -25,9 +25,9 @@ spec:
               value: "Anhyeuem123@"
           resources:
             limits:
-              memory: "512Mi"
+              memory: "1Gi"
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
           ports:
             - containerPort: 9200
           volumeMounts:
