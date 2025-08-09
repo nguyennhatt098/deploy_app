@@ -27,9 +27,9 @@ spec:
             - containerPort: 5601
           resources:
             limits:
-              memory: "1Gi"
+              memory: "2Gi"
             requests:
-              memory: "512Mi"
+              memory: "1Gi"
       restartPolicy: Always
 ---
 apiVersion: v1
