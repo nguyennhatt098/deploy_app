@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+spec:
+metadata:
+  name: web-crypto-ingress
+  namespace: web-crypto
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - trading.risecapitalvn.com
+        - api.risecapitalvn.com
+      secretName: web-crypto-cert-secret
+  rules:
+    - host: api.risecapitalvn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 6000
+    - host: trading.risecapitalvn.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 6001
