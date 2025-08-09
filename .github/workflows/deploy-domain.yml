@@ -29,24 +29,17 @@ jobs:
             echo "❌ clusterissuer-letsencrypt-prod.yaml not found"
           fi
 
-      - name: Apply all domain configs in apps
+      - name: Apply all manifests in apps
         run: |
           for dir in apps/*; do
             if [ -d "$dir" ]; then
-              echo "Applying for $dir"
-              if [ -f "$dir/certificate.yaml" ]; then
-                echo "Applying certificate.yaml"
-                kubectl apply -f "$dir/certificate.yaml"
-              else
-                echo "❌ $dir/certificate.yaml not found"
-              fi
-
-              if [ -f "$dir/ingress.yaml" ]; then
-                echo "Applying ingress.yaml"
-                kubectl apply -f "$dir/ingress.yaml"
-              else
-                echo "❌ $dir/ingress.yaml not found2"
-              fi
+              echo "Applying all yaml in $dir"
+              for file in "$dir"/*.yaml; do
+                if [ -f "$file" ]; then
+                  echo "Applying $file"
+                  kubectl apply -f "$file"
+                fi
+              done
             fi
           done
 
