@@ -1,4 +1,38 @@
-# Ingress cho FE + API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-crypto-frontend
+  namespace: web-crypto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-crypto-frontend
+  template:
+    metadata:
+      labels:
+        app: web-crypto-frontend
+    spec:
+      containers:
+        - name: web-crypto-frontend
+          image: your-dockerhub-user/web-crypto-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6001
+          command: ["serve", "-s", "browser", "-l", "6001", "--single"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-crypto-frontend-service
+  namespace: web-crypto
+spec:
+  selector:
+    app: web-crypto-frontend
+  ports:
+    - port: 6001
+      targetPort: 6001
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,28 +40,13 @@ metadata:
   namespace: web-crypto
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - trading.risecapitalvn.com
-        - api.risecapitalvn.com
       secretName: web-crypto-cert-secret
   rules:
-    # API backend
-    - host: api.risecapitalvn.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: crm-tool-service
-                port:
-                  number: 6000
-    # Angular frontend
     - host: trading.risecapitalvn.com
       http:
         paths:
