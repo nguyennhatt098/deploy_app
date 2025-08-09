@@ -21,7 +21,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: backend-service
+                name: crm-tool-service
                 port:
                   number: 6000
     - host: trading.risecapitalvn.com
@@ -31,6 +31,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: web-crypto-frontend-service
                 port:
                   number: 6001
