@@ -56,4 +56,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  # Không khai báo storage, dùng mặc định của storage class
+  resources:
+    requests:
+      storage: 30Gi
