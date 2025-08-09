@@ -36,8 +36,11 @@ jobs:
               echo "Applying all yaml in $dir"
               for file in "$dir"/*.yaml; do
                 if [ -f "$file" ]; then
-                  echo "Applying $file"
-                  kubectl apply -f "$file"
+                  echo "Applying $file..."
+                  start=$(date +%s)
+                  kubectl apply --timeout=60s -f "$file" 2>&1 || echo "❌ Error applying $file"
+                  end=$(date +%s)
+                  echo "Done $file in $((end-start))s"
                 fi
               done
             fi
