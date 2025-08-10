@@ -22,7 +22,7 @@ spec:
         - name: argo-server
           image: quay.io/argoproj/argocli:v3.5.5 # image chuẩn của Argo Workflows UI
           command: ["argo", "server"]
-          args: ["--address", "0.0.0.0", "--secure=false"]
+          args: ["--port", "2746", "--secure=false"]
           ports:
             - containerPort: 2746
           resources:
