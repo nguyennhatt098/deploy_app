@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-crypto-frontend
+  name: web-crypto-frontend-deployment
   namespace: web-crypto
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-crypto-frontend
+  app: web-crypto-frontend
   template:
     metadata:
       labels:
@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web-crypto-frontend
-          image: your-dockerhub-user/web-crypto-frontend:latest
+          image: ghcr.io/nguyennhatt098/web-crypto-frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 6001
@@ -28,7 +28,7 @@ metadata:
   namespace: web-crypto
 spec:
   selector:
-    app: web-crypto-frontend
+  app: web-crypto-frontend
   ports:
     - port: 6001
       targetPort: 6001
@@ -45,7 +45,7 @@ spec:
   tls:
     - hosts:
         - trading.risecapitalvn.com
-      secretName: web-crypto-cert-secret
+  secretName: web-crypto-cert-secret
   rules:
     - host: trading.risecapitalvn.com
       http:
