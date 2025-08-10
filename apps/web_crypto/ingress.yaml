@@ -9,11 +9,11 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - api.trading.risecapitalvn.com
+        - api.risecapitalvn.com
         - trading.risecapitalvn.com
       secretName: web-crypto-cert-secret
   rules:
-    - host: api.trading.risecapitalvn.com
+    - host: api.risecapitalvn.com
       http:
         paths:
           - path: /
