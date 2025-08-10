@@ -9,17 +9,30 @@ metadata:
 spec:
   ingressClassName: traefik
   tls:
-    - hosts:
-        - api2.gamehearth.com
-      secretName: web-game-cert-secret
+      - hosts:
+          - api.gamehearth.com
+        secretName: web-game-cert-secret
+      - hosts:
+          - gamehearth.com
+        secretName: web-game-cert-secret
   rules:
-    - host: api2.gamehearth.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-service
-                port:
-                  number: 4000
+      - host: api.gamehearth.com
+        http:
+          paths:
+            - path: /api
+              pathType: Prefix
+              backend:
+                service:
+                  name: backend-service
+                  port:
+                    number: 4000
+      - host: gamehearth.com
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: frontend-service
+                    port:
+                      number: 4001
