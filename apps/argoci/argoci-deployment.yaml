@@ -21,7 +21,8 @@ spec:
       containers:
         - name: argo-server
           image: quay.io/argoproj/argocli:v3.5.5 # image chuẩn của Argo Workflows UI
-          command: ["argo", "server", "--address", "0.0.0.0", "--secure=false"]
+          command: ["argo", "server"]
+          args: ["--address", "0.0.0.0", "--secure=false"]
           ports:
             - containerPort: 2746
           resources:
