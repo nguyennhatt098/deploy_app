@@ -26,6 +26,13 @@ spec:
     - host: gamehearth.com
       http:
         paths:
+          - path: /en
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 4001
           - path: /
             pathType: Prefix
             backend:
@@ -33,3 +40,5 @@ spec:
                 name: frontend-service
                 port:
                   number: 4001
+            rewrite:
+              target: /en
