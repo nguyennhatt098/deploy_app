@@ -35,7 +35,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: argo-server-service
+  name: argo-server
   namespace: argo
 spec:
   type: NodePort

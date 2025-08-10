@@ -14,6 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: argo-server-service
+                name: argo-server
                 port:
                   number: 2746
