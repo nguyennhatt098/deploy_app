@@ -10,8 +10,6 @@ spec:
   tls:
     - hosts:
         - api.gamehearth.com
-      secretName: web-game-cert-secret
-    - hosts:
         - gamehearth.com
       secretName: web-game-cert-secret
   rules:
