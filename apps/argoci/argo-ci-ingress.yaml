@@ -17,3 +17,7 @@ spec:
                 name: argo-server
                 port:
                   number: 2746
+  tls:
+    - hosts:
+        - ci.nefyo.com
+      secretName: ci-nefyo-com-tls
