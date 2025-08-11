@@ -1,3 +1,15 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-root-to-en
+  namespace: web-game
+spec:
+  redirectRegex:
+    regex: "^/$"
+    replacement: "/en"
+    permanent: true
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -5,7 +17,7 @@ metadata:
   namespace: web-game
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    traefik.ingress.kubernetes.io/router.middlewares: web-game-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: web-game/redirect-root-to-en@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:
