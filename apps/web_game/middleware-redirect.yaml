@@ -1,0 +1,10 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-root-to-en
+  namespace: web-game
+spec:
+  redirectRegex:
+    regex: "^/$"
+    replacement: "/en"
+    permanent: true
