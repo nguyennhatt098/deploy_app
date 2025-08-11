@@ -5,6 +5,9 @@ metadata:
   namespace: elasticsearch
 spec:
   template:
+    metadata:
+      labels:
+        job-name: elasticsearch-init-user
     spec:
       containers:
         - name: init-user
