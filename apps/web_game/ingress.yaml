@@ -9,11 +9,11 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - api2.gamehearth.com
-        - game2.gamehearth.com
+        - api.gamehearth.com
+        - gamehearth.com
       secretName: web-game-cert-secret
   rules:
-    - host: api2.gamehearth.com
+    - host: api.gamehearth.com
       http:
         paths:
           - path: /api
@@ -23,7 +23,7 @@ spec:
                 name: backend-service
                 port:
                   number: 4000
-    - host: game2.gamehearth.com
+    - host: gamehearth.com
       http:
         paths:
           - path: /
