@@ -20,5 +20,7 @@ spec:
               until curl -s "http://elasticsearch-service:9200" > /dev/null; do
                 echo "Waiting for Elasticsearch..."; sleep 5;
               done
-              curl -u elastic:Anhyeuem123@ -X POST "http://elasticsearch-service:9200/_security/user/kibana_system" -H "Content-Type: application/json" -d '{"password": "Anhyeuem123@", "roles": ["kibana_system"], "full_name": "Kibana System User"}'
+              curl -u elastic:Anhyeuem123@ -X POST "http://elasticsearch-service:9200/_security/user/kibana_system" \
+                -H "Content-Type: application/json" \
+                -d '{"password": "Anhyeuem123@", "roles": ["kibana_system"], "full_name": "Kibana System User"}'
       restartPolicy: OnFailure
