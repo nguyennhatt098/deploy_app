@@ -33,5 +33,3 @@ spec:
                 name: frontend-service
                 port:
                   number: 4001
-            rewrite:
-              target: /en
