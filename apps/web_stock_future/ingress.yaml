@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-stock-future-ingress
+  namespace: web-stock-future
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api2.gamehearth.com
+        - game2.gamehearth.com
+      secretName: web-stock-future-cert-secret
+  rules:
+    - host: api2.gamehearth.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stock-future-backend-service
+                port:
+                  number: 7000
+    - host: game2.gamehearth.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stock-future-frontend-service
+                port:
+                  number: 7001
