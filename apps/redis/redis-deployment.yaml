@@ -16,6 +16,7 @@ spec:
       containers:
         - name: redis
           image: redis:7.2-alpine
+          command: ["redis-server", "--requirepass", "Anhyeuem123@"]
           ports:
             - containerPort: 6379
           volumeMounts:
