@@ -38,17 +38,7 @@ spec:
           args:
             - -c
             - |
-              # Check if data directory exists and is corrupted
-              if [ -d "$PGDATA" ] && [ "$(ls -A $PGDATA 2>/dev/null)" ]; then
-                echo "Data directory exists, checking for corruption..."
-                # Try to start postgres in single-user mode to check corruption
-                if ! postgres --single -D "$PGDATA" template1 < /dev/null > /dev/null 2>&1; then
-                  echo "Database appears corrupted, backing up and reinitializing..."
-                  mv "$PGDATA" "${PGDATA}_corrupted_$(date +%Y%m%d_%H%M%S)"
-                  mkdir -p "$PGDATA"
-                fi
-              fi
-              # Start normal postgres entrypoint
+              # Start normal postgres entrypoint (không tự động move/xóa dữ liệu để tránh mất data ngoài ý muốn)
               exec docker-entrypoint.sh postgres
       volumes:
         - name: pgdata
