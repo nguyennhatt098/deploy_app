@@ -31,7 +31,7 @@ spec:
       volumes:
         - name: pgdata
           persistentVolumeClaim:
-            claimName: data-my-postgres-postgresql-0
+            claimName: pgdata-pvc
 ---
 apiVersion: v1
 kind: Service
