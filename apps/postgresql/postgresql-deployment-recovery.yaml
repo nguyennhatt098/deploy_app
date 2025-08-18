@@ -65,11 +65,15 @@ spec:
               value: "/var/lib/postgresql/data/pgdata"
             - name: POSTGRES_INITDB_ARGS
               value: "--data-checksums --wal-segsize=32"
+            - name: POSTGRES_MULTIPLE_DATABASES
+              value: "stock_future,game_pix"
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
           livenessProbe:
             exec:
               command:
@@ -95,6 +99,9 @@ spec:
         - name: pgdata
           persistentVolumeClaim:
             claimName: pgdata-pvc
+        - name: init-script
+          configMap:
+            name: postgres-init-script
 ---
 apiVersion: v1
 kind: Service
