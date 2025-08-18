@@ -23,15 +23,50 @@ spec:
               value: "postgres"
             - name: POSTGRES_PASSWORD
               value: "Anhyeuem123@"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+          command: ["/bin/bash"]
+          args:
+            - -c
+            - |
+              # Check if data directory exists and is corrupted
+              if [ -d "$PGDATA" ] && [ "$(ls -A $PGDATA 2>/dev/null)" ]; then
+                echo "Data directory exists, checking for corruption..."
+                # Try to start postgres in single-user mode to check corruption
+                if ! postgres --single -D "$PGDATA" template1 < /dev/null > /dev/null 2>&1; then
+                  echo "Database appears corrupted, backing up and reinitializing..."
+                  mv "$PGDATA" "${PGDATA}_corrupted_$(date +%Y%m%d_%H%M%S)"
+                  mkdir -p "$PGDATA"
+                fi
+              fi
+              # Start normal postgres entrypoint
+              exec docker-entrypoint.sh postgres
       volumes:
         - name: pgdata
           persistentVolumeClaim:
             claimName: pgdata-pvc
+        - name: init-script
+          configMap:
+            name: postgres-recovery-script
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-recovery-script
+  namespace: postgresql
+data:
+  01-recovery.sh: |
+    #!/bin/bash
+    echo "PostgreSQL recovery script loaded"
 ---
 apiVersion: v1
 kind: Service

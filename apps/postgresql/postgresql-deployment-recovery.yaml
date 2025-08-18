@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      initContainers:
+        - name: postgres-recovery
+          image: postgres:15-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Checking PostgreSQL data directory..."
+              
+              # Set the data directory
+              export PGDATA="/var/lib/postgresql/data/pgdata"
+              
+              # Check if data directory exists
+              if [ -d "$PGDATA" ]; then
+                echo "Data directory found, checking integrity..."
+                
+                # Check if we can read the control file
+                if [ -f "$PGDATA/global/pg_control" ]; then
+                  echo "Control file exists, attempting recovery..."
+                  
+                  # Try to validate the data directory
+                  if ! pg_controldata "$PGDATA" > /dev/null 2>&1; then
+                    echo "Data directory appears corrupted, moving to backup..."
+                    mv "$PGDATA" "${PGDATA}_corrupted_$(date +%Y%m%d_%H%M%S)" || true
+                    echo "Corrupted data moved, will initialize fresh database"
+                  else
+                    echo "Data directory appears healthy"
+                  fi
+                else
+                  echo "No control file found, data directory may be incomplete"
+                fi
+              else
+                echo "No existing data directory found"
+              fi
+              
+              # Ensure directory exists for main container
+              mkdir -p "$PGDATA"
+              chown -R 999:999 /var/lib/postgresql/data
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: "your_db_name"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "Anhyeuem123@"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums --wal-segsize=32"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U postgres -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U postgres -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgdata-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: postgresql
+spec:
+  type: NodePort
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      nodePort: 30032
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgdata-pvc
+  namespace: postgresql
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
