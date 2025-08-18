@@ -40,6 +40,8 @@ spec:
               else
                 echo "No existing data directory found"
               fi
+              mkdir -p /var/lib/postgresql/data
+              chmod 777 /var/lib/postgresql/data
               mkdir -p "$PGDATA"
               chown -R 999:999 /var/lib/postgresql/data
           volumeMounts:
