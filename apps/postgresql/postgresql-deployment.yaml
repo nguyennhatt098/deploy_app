@@ -23,6 +23,10 @@ spec:
               value: "postgres"
             - name: POSTGRES_PASSWORD
               value: "Anhyeuem123@"
+            - name: TZ
+              value: "Asia/Ho_Chi_Minh"
+            - name: PGTZ
+              value: "Asia/Ho_Chi_Minh"
           ports:
             - containerPort: 5432
           volumeMounts:
