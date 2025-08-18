@@ -5,6 +5,7 @@ metadata:
   namespace: web-stock-future
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  traefik.ingress.kubernetes.io/router.middlewares: "web-stock-future/web-stock-future-no-cache@kubernetescrd"
 spec:
   ingressClassName: traefik
   tls:
@@ -33,3 +34,13 @@ spec:
                 name: web-stock-future-frontend-service
                 port:
                   number: 7001
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: web-stock-future-no-cache
+  namespace: web-stock-future
+spec:
+  headers:
+    customResponseHeaders:
+      Cache-Control: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
