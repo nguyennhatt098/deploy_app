@@ -34,13 +34,3 @@ spec:
                 name: web-stock-future-frontend-service
                 port:
                   number: 7001
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: web-stock-future-no-cache
-  namespace: web-stock-future
-spec:
-  headers:
-    customResponseHeaders:
-      Cache-Control: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"
