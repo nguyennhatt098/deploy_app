@@ -10,11 +10,11 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - api2.gamehearth.com
-        - game2.gamehearth.com
+        - api.iprime.primecapitalvn.com
+        - iprime.primecapitalvn.com
       secretName: web-stock-future-cert-secret
   rules:
-    - host: api2.gamehearth.com
+    - host: api.iprime.primecapitalvn.com
       http:
         paths:
           - path: /
@@ -24,7 +24,7 @@ spec:
                 name: web-stock-future-backend-service
                 port:
                   number: 7000
-    - host: game2.gamehearth.com
+    - host: iprime.primecapitalvn.com
       http:
         paths:
           - path: /
