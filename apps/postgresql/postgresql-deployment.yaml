@@ -17,46 +17,19 @@ spec:
         - name: postgres
           image: postgres:15-alpine
           env:
-            - name: POSTGRES_DB
-              value: "your_db_name"
             - name: POSTGRES_USER
               value: "postgres"
             - name: POSTGRES_PASSWORD
               value: "Anhyeuem123@"
-            - name: PGDATA
-              value: "/var/lib/postgresql/data/pgdata"
-            - name: POSTGRES_INITDB_ARGS
-              value: "--data-checksums"
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
-            - name: init-script
-              mountPath: /docker-entrypoint-initdb.d
-          command: ["/bin/bash"]
-          args:
-            - -c
-            - |
-              # Start normal postgres entrypoint (không tự động move/xóa dữ liệu để tránh mất data ngoài ý muốn)
-              exec docker-entrypoint.sh postgres
       volumes:
         - name: pgdata
           persistentVolumeClaim:
             claimName: pgdata-pvc
-        - name: init-script
-          configMap:
-            name: postgres-recovery-script
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-recovery-script
-  namespace: postgresql
-data:
-  01-recovery.sh: |
-    #!/bin/bash
-    echo "PostgreSQL recovery script loaded"
 ---
 apiVersion: v1
 kind: Service
@@ -70,7 +43,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-      nodePort: 30032
+      nodePort: 30032   # Public port ngoài cluster
       protocol: TCP
 ---
 apiVersion: v1
