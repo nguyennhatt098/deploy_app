@@ -5,7 +5,7 @@ metadata:
   namespace: web-stock-future
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  traefik.ingress.kubernetes.io/router.middlewares: "web-stock-future/web-stock-future-no-cache@kubernetescrd"
+    traefik.ingress.kubernetes.io/router.middlewares: "web-stock-future/web-stock-future-no-cache@kubernetescrd"
 spec:
   ingressClassName: traefik
   tls:
