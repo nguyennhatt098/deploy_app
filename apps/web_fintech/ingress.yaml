@@ -13,7 +13,7 @@ spec:
         - fintech.nefyo.com
       secretName: fintech-cert-secret
   rules:
-    - host: api-fintech.nefyo.com
+    - host: api.fintech.nefyo.com
       http:
         paths:
           - path: /
