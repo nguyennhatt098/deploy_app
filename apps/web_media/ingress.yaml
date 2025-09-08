@@ -19,6 +19,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: storage-service-backend-service
+                name: storage-backend-service   # <- sửa cho khớp với Service của bạn
                 port:
                   number: 3015
