@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-stocks-ingress
+  namespace: web-stocks
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - api.stocks.nefyo.com
+        - stocks.nefyo.com
+      secretName: web-stocks-cert-secret
+  rules:
+    - host: api.stocks.nefyo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stocks-backend-service
+                port:
+                  number: 7400
+    - host: stocks.nefyo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stocks-frontend-service
+                port:
+                  number: 7200
