@@ -40,13 +40,3 @@ spec:
                 name: tool-service
                 port:
                   number: 9999
-    - host: "157.10.199.177"
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: tool-service
-                port:
-                  number: 9999
