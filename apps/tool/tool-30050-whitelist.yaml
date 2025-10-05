@@ -15,28 +15,20 @@ spec:
       - "1.2.3.4/32"        # Thay bằng IP công ty/nhà của bạn
       - "5.6.7.8/32"        # Thêm IP khác nếu cần
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
-  name: tool-service-ingress
+  name: ip-access-whitelist
   namespace: web-stock-future
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: web-stock-future-tool-whitelist-30050@kubernetescrd
-    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
-  ingressClassName: traefik
-  tls:
-    - hosts:
-        - tool.nefyo.com
-      secretName: tool-tls
-  rules:
-    - host: tool.nefyo.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: tool-service
-                port:
-                  number: 9999
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`157.10.199.177`)
+      kind: Rule
+      services:
+        - name: web-stock-future-frontend-service
+          port: 7001
+      middlewares:
+        - name: tool-whitelist-30050
+      priority: 100
