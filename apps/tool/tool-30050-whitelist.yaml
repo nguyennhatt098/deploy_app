@@ -12,7 +12,7 @@ spec:
       - "192.168.0.0/16"    # Internal LAN network
       - "172.16.0.0/12"     # Docker internal network
       # Thêm IP được phép truy cập vào đây:
-      - "14.191.166.230"        # Thay bằng IP công ty/nhà của bạn
+      - "14.191.166.230/32"        # Thay bằng IP công ty/nhà của bạn
       - "5.6.7.8/32"        # Thêm IP khác nếu cần
 ---
 apiVersion: v1
