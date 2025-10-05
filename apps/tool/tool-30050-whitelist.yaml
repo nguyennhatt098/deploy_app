@@ -21,13 +21,12 @@ metadata:
   name: tool-service-nodeport-30050
   namespace: web-stock-future
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: tool-service
   ports:
     - port: 9999
       targetPort: 9999
-      nodePort: 30050
       protocol: TCP
 ---
 apiVersion: traefik.io/v1alpha1
@@ -37,7 +36,7 @@ metadata:
   namespace: web-stock-future
 spec:
   entryPoints:
-    - web
+    - port30050
   routes:
     - match: HostRegexp(`{host:.+}`)
       kind: Rule

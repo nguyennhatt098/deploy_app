@@ -1,0 +1,16 @@
+---
+# Traefik static configuration to add entryPoint port30050
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-static-config-port30050
+  namespace: kube-system
+data:
+  traefik.yml: |
+    entryPoints:
+      port30050:
+        address: ":30050"
+
+    providers:
+      kubernetesIngress: {}
+      kubernetesCRD: {}
