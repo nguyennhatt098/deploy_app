@@ -1,22 +1,5 @@
 ---
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: tool-whitelist-30050
-  namespace: web-stock-future
-spec:
-  ipWhiteList:
-    sourceRange:
-      - "127.0.0.1/32"      # Local access
-      - "10.42.0.0/16"      # K3s internal pod network
-      - "192.168.0.0/16"    # Internal LAN network
-      - "172.16.0.0/12"     # Docker internal network
-      # Thêm IP được phép truy cập vào đây:
-      - "14.191.166.230/32"        # Thay bằng IP công ty/nhà của bạn
-      - "5.6.7.8/32"        # Thêm IP khác nếu cần
-
----
-# NetworkPolicy để chặn traffic trực tiếp đến NodePort 30050 (bypass Traefik)
+# NetworkPolicy để chặn traffic đến pod tool-service từ IP không được phép
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -29,25 +12,24 @@ spec:
   policyTypes:
   - Ingress
   ingress:
-  # Cho phép traffic từ các IP whitelist
+  # Cho phép traffic từ các IP được whitelist
   - from:
     - ipBlock:
-        cidr: 14.191.166.230/32
+        cidr: 14.191.166.230/32  # IP của bạn
     - ipBlock:
-        cidr: 127.0.0.1/32
+        cidr: 127.0.0.1/32       # Local
     - ipBlock:
-        cidr: 10.42.0.0/16
+        cidr: 10.42.0.0/16       # K3s internal
     - ipBlock:
-        cidr: 192.168.0.0/16
+        cidr: 192.168.0.0/16     # LAN internal
     - ipBlock:
-        cidr: 172.16.0.0/12
+        cidr: 172.16.0.0/12      # Docker internal
     ports:
     - protocol: TCP
       port: 9999
-  # Cho phép traffic nội bộ cluster (từ các pods khác)
+  # Cho phép traffic nội bộ namespace (để services khác vẫn giao tiếp được)
   - from:
+    - namespaceSelector:
+        matchLabels:
+          name: web-stock-future
     - podSelector: {}
-    - namespaceSelector: {}
-    ports:
-    - protocol: TCP
-      port: 9999
