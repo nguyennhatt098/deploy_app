@@ -25,7 +25,7 @@ spec:
   selector:
     app: tool-service
   ports:
-    - port: 30050
+    - port: 9999
       targetPort: 9999
       nodePort: 30050
       protocol: TCP
@@ -39,11 +39,10 @@ spec:
   entryPoints:
     - web
   routes:
-    - match: Host(`157.10.199.177`) && Port(`30050`)
+    - match: HostRegexp(`{host:.+}`)
       kind: Rule
       services:
         - name: tool-service-nodeport-30050
-          port: 30050
+          port: 9999
       middlewares:
         - name: tool-whitelist-30050
-      priority: 100
