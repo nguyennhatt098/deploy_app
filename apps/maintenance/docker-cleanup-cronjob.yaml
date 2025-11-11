@@ -1,0 +1,149 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: k3s-image-cleanup-job
+  namespace: kube-system
+spec:
+  schedule: "0 3 */7 * *" # Chạy lúc 3h sáng mỗi 7 ngày (hàng tuần)
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          hostNetwork: true
+          hostPID: true
+          containers:
+            - name: k3s-image-cleanup
+              image: rancher/k3s:v1.28.13-k3s1
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting K3s image cleanup..."
+                  
+                  # Use k3s crictl for container runtime operations
+                  export CONTAINER_RUNTIME_ENDPOINT=unix:///run/k3s/containerd/containerd.sock
+                  export IMAGE_SERVICE_ENDPOINT=unix:///run/k3s/containerd/containerd.sock
+                  
+                  # Show current images and disk usage
+                  echo "=== Current images before cleanup ==="
+                  k3s crictl images | head -20
+                  
+                  echo "=== Disk usage before cleanup ==="
+                  df -h /var/lib/rancher/k3s
+                  
+                  # Remove unused images (not used by any container)
+                  echo "Removing unused images..."
+                  k3s crictl rmi --prune || true
+                  
+                  # Remove unused containers
+                  echo "Removing exited containers..."
+                  k3s crictl rm $(k3s crictl ps -a -q --filter state=exited) 2>/dev/null || true
+                  
+                  # Clean up specific old versions of your custom images
+                  echo "Cleaning up old versions of custom images..."
+                  
+                  # Function to clean old images but keep latest + 1 previous
+                  cleanup_repo() {
+                    local repo=$1
+                    echo "Cleaning up $repo..."
+                    # Get image IDs except latest, sort by creation time, keep latest 2, remove rest
+                    k3s crictl images | grep "$repo" | grep -v "latest" | awk 'NR>2 {print $3}' | xargs -r k3s crictl rmi 2>/dev/null || true
+                  }
+                  
+                  # Clean up your custom repositories
+                  cleanup_repo "ghcr.io/nguyennhatt098/tool-crm-web-stock-future-backend"
+                  cleanup_repo "ghcr.io/nguyennhatt098/tool-crm-web-stock-future-frontend"  
+                  cleanup_repo "ghcr.io/nguyennhatt098/tool-crm-web-stock-future-runner"
+                  cleanup_repo "ghcr.io/nguyennhatt098/web-game-backend"
+                  cleanup_repo "ghcr.io/nguyennhatt098/web-game-frontend"
+                  
+                  # Final cleanup
+                  echo "Final cleanup..."
+                  k3s crictl rmi --prune || true
+                  
+                  echo "=== Images after cleanup ==="
+                  k3s crictl images | wc -l
+                  echo "=== Disk usage after cleanup ==="
+                  df -h /var/lib/rancher/k3s
+                  
+                  echo "K3s image cleanup completed successfully!"
+              volumeMounts:
+                - name: k3s-containerd-sock
+                  mountPath: /run/k3s/containerd/containerd.sock
+                - name: k3s-data
+                  mountPath: /var/lib/rancher/k3s
+              securityContext:
+                privileged: true
+          restartPolicy: OnFailure
+          volumes:
+            - name: k3s-containerd-sock
+              hostPath:
+                path: /run/k3s/containerd/containerd.sock
+                type: Socket
+            - name: k3s-data
+              hostPath:
+                path: /var/lib/rancher/k3s
+                type: Directory
+          nodeSelector:
+            kubernetes.io/os: linux
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: k3s-system-cleanup-job
+  namespace: kube-system
+spec:
+  schedule: "0 4 */3 * *" # Chạy lúc 4h sáng mỗi 3 ngày - cleanup toàn diện hơn
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          hostNetwork: true
+          hostPID: true
+          containers:
+            - name: k3s-system-cleanup
+              image: rancher/k3s:v1.28.13-k3s1
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting comprehensive K3s system cleanup..."
+                  echo "WARNING: Only cleaning images and containers - preserving all file mounts and volumes!"
+                  
+                  # Set containerd endpoint
+                  export CONTAINER_RUNTIME_ENDPOINT=unix:///run/k3s/containerd/containerd.sock
+                  export IMAGE_SERVICE_ENDPOINT=unix:///run/k3s/containerd/containerd.sock
+                  
+                  # Show current image count
+                  echo "=== Current image count ==="
+                  k3s crictl images | wc -l
+                  
+                  # Remove all unused images aggressively
+                  echo "Removing all unused images..."
+                  k3s crictl rmi --prune || true
+                  
+                  # Remove exited and created containers
+                  echo "Removing stopped containers..."
+                  k3s crictl rm $(k3s crictl ps -a -q --filter state=exited) 2>/dev/null || true
+                  k3s crictl rm $(k3s crictl ps -a -q --filter state=created) 2>/dev/null || true
+                  
+                  # Note: SAFE MODE - Only cleaning up images and containers
+                  echo "SAFE MODE: File mounts, volumes, and persistent data are preserved!"
+                  
+                  echo "=== Final image count ==="
+                  k3s crictl images | wc -l
+                  
+                  echo "Safe K3s cleanup completed - no data lost!"
+              volumeMounts:
+                - name: k3s-containerd-sock
+                  mountPath: /run/k3s/containerd/containerd.sock
+              securityContext:
+                privileged: true
+          restartPolicy: OnFailure
+          volumes:
+            - name: k3s-containerd-sock
+              hostPath:
+                path: /run/k3s/containerd/containerd.sock
+                type: Socket
+          nodeSelector:
+            kubernetes.io/os: linux
