@@ -32,4 +32,4 @@ spec:
               service:
                 name: web-stock-future-frontend-service-test
                 port:
-                  number: 7101
+                  number: 7201
