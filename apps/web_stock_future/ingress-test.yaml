@@ -41,6 +41,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: web-stock-future-runner-test
+                name: web-stock-future-runner-service-test
                 port:
                   number: 7152
