@@ -11,6 +11,7 @@ spec:
     - hosts:
         - api-test-iprime.nefyo.com
         - test-iprime.nefyo.com
+        - test.tool.iprime.nefyo.com
       secretName: web-stock-future-cert-secret
   rules:
     - host: api-test-iprime.nefyo.com
@@ -24,6 +25,16 @@ spec:
                 port:
                   number: 7100
     - host: test-iprime.nefyo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-stock-future-frontend-service-test
+                port:
+                  number: 7201
+    - host: test.tool.iprime.nefyo.com
       http:
         paths:
           - path: /
