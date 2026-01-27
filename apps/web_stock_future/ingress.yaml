@@ -11,6 +11,7 @@ spec:
     - hosts:
         - api.iprime.primecapitalvn.com
         - iprime.primecapitalvn.com
+        - test.tool.iprime.nefyo.com
       secretName: web-stock-future-cert-secret
   rules:
     - host: api.iprime.primecapitalvn.com
