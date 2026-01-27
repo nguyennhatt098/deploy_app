@@ -41,6 +41,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: web-stock-future-runner-service-test
+                name: web-stock-future-runner-service
                 port:
                   number: 5051
