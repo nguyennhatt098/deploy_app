@@ -34,13 +34,4 @@ spec:
                 name: web-stock-future-frontend-service-test
                 port:
                   number: 7201
-    - host: test.tool.iprime.nefyo.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: web-stock-future-runner-service-test
-                port:
-                  number: 7152
+
