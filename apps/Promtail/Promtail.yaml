@@ -42,19 +42,34 @@ data:
 
     clients:
       - url: http://loki-service:3100/loki/api/v1/push
-
+        batchsize: 102400       # ~100KB
+        batchwait: 1s
     scrape_configs:
       - job_name: kubernetes-pods-hft
 
         pipeline_stages:
           - cri: {}
 
-        static_configs:
-          - targets:
-              - localhost
-            labels:
-              job: kubernetes-pods-hft
-              __path__: /var/log/pods/*/*/*.log
+        kubernetes_sd_configs:
+          - role: pod
+
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            regex: (fintech|web-game|web-stock-future)
+            action: keep
+
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            target_label: container
+
+          - action: replace
+            replacement: /var/log/pods/*/*/*.log
+            target_label: __path__
 
 ---
 apiVersion: apps/v1
