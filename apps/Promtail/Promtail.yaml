@@ -12,6 +12,7 @@ spec:
       labels:
         app: promtail
     spec:
+      serviceAccountName: promtail-sa # QUAN TRỌNG: Dùng tài khoản có quyền list pods
       containers:
         - name: promtail
           image: grafana/promtail:2.9.4
@@ -24,19 +25,20 @@ spec:
                   fieldPath: spec.nodeName
           volumeMounts:
             - name: logs
-              mountPath: /var/log
-            - name: varlibdockercontainers
-              mountPath: /var/lib/docker/containers
+              mountPath: /var/log/pods # K3s lưu log ở đây
               readOnly: true
             - name: config
               mountPath: /etc/promtail
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
       volumes:
         - name: logs
           hostPath:
-            path: /var/log
-        - name: varlibdockercontainers
-          hostPath:
-            path: /var/lib/docker/containers
+            path: /var/log/pods
         - name: config
           configMap:
             name: promtail-config
@@ -59,3 +61,7 @@ data:
       relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_app]
         target_label: app
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
