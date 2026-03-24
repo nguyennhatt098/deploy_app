@@ -54,7 +54,7 @@ data:
               - localhost
             labels:
               job: kubernetes-pods-hft
-              __path__: /var/log/pods/**/*.log
+              __path__: /var/log/pods/*/*/*.log
 
 ---
 apiVersion: apps/v1
