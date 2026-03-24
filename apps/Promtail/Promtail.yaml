@@ -61,7 +61,11 @@ data:
             - __meta_kubernetes_pod_uid
             - __meta_kubernetes_pod_container_name
           separator: _
-          replacement: /var/log/pods/${1}_${2}_${3}/${4}/*.log
+          - replacement: /var/log/pods/*$1*/*$2*/*.log
+          separator: /
+          source_labels:
+            - __meta_kubernetes_namespace
+            - __meta_kubernetes_pod_name
           target_label: __path__
 ---
 # 5. BỘ CHẠY PROMTAIL (DAEMONSET)
@@ -95,6 +99,9 @@ spec:
           volumeMounts:
             - name: logs
               mountPath: /var/log/pods
+              readOnly: true
+            - name: varlibdockercontainers # Thêm mount này nếu cái trên vẫn lỗi
+              mountPath: /var/lib/docker/containers
               readOnly: true
             - name: config
               mountPath: /etc/promtail
