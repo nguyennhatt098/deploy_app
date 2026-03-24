@@ -57,7 +57,9 @@ data:
           - source_labels: [__meta_kubernetes_namespace]
             regex: (fintech|web-game|web-stock-future)
             action: keep
-
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: (web-stock-future-backend|web-stock-future-runner|web-stock-future-frontend)
+            action: keep
           - action: replace
             replacement: /var/log/pods/*/*/*.log
             target_label: __path__
