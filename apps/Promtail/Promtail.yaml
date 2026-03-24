@@ -30,7 +30,7 @@ roleRef:
   name: promtail-cr
   apiGroup: rbac.authorization.k8s.io
 ---
-# 4. CẤU HÌNH PROMTAIL (CONFIGMAP) - ĐÃ FIX LỖI CÚ PHÁP
+# 4. CẤU HÌNH PROMTAIL (CONFIGMAP) - ĐÃ FIX LỖI CÚ PHÁP 
 apiVersion: v1
 kind: ConfigMap
 metadata:
