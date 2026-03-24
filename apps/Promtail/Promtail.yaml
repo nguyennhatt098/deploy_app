@@ -1,12 +1,12 @@
 ---
-# 1. Tạo ServiceAccount (Định danh cho Promtail)
+# 1. TẠO SERVICE ACCOUNT
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: promtail-sa
   namespace: elasticsearch
 ---
-# 2. Tạo ClusterRole (Định nghĩa các quyền cần thiết)
+# 2. CẤP QUYỀN (CLUSTER ROLE)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -16,7 +16,7 @@ rules:
     resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
     verbs: ["get", "list", "watch"]
 ---
-# 3. Ràng buộc quyền vào ServiceAccount
+# 3. GẮN QUYỀN VÀO ACCOUNT
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -30,7 +30,7 @@ roleRef:
   name: promtail-cr
   apiGroup: rbac.authorization.k8s.io
 ---
-# 4. Cấu hình quét Log (ConfigMap)
+# 4. CẤU HÌNH PROMTAIL (CONFIGMAP)
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -54,7 +54,7 @@ data:
       - source_labels: [__meta_kubernetes_pod_name]
         target_label: pod
 ---
-# 5. Bộ chạy Promtail (DaemonSet)
+# 5. BỘ CHẠY PROMTAIL (DAEMONSET)
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -69,7 +69,7 @@ spec:
       labels:
         app: promtail
     spec:
-      serviceAccountName: promtail-sa
+      serviceAccountName: promtail-sa # Đã khớp với SA ở trên
       containers:
         - name: promtail
           image: grafana/promtail:2.9.4
