@@ -47,7 +47,6 @@ data:
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
-        # 1. Gắn nhãn cơ bản để lọc trên Grafana
         - source_labels: [__meta_kubernetes_pod_label_app]
           target_label: app
         - source_labels: [__meta_kubernetes_namespace]
@@ -57,13 +56,11 @@ data:
         - source_labels: [__meta_kubernetes_pod_container_name]
           target_label: container
 
-        # 2. QUAN TRỌNG: Chỉ đường cho Promtail tìm file log trong K3s
-        # K3s lưu log tại: /var/log/pods/<namespace>_<pod_name>_<uid>/<container_name>/*.log
-        - replacement: /var/log/pods/*$1*/*$2*/*.log
-          separator: /
-          source_labels:
-            - __meta_kubernetes_namespace
-            - __meta_kubernetes_pod_name
+        # Sửa lại khớp với cấu trúc thực tế bạn vừa gửi:
+        # /var/log/pods/elasticsearch_promtail-cq5r4_db716e20.../promtail/0.log
+        - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_pod_name, __meta_kubernetes_pod_uid, __meta_kubernetes_pod_container_name]
+          separator: _
+          replacement: /var/log/pods/${1}_${2}_${3}/${4}/*.log
           target_label: __path__
 ---
 # 5. BỘ CHẠY PROMTAIL (DAEMONSET)
