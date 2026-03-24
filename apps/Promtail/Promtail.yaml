@@ -38,9 +38,9 @@ data:
     clients:
       - url: http://10.43.148.211:3100/loki/api/v1/push
     scrape_configs:
-    - job_name: kubernetes-pods-new
+    - job_name: kubernetes-pods-hft
       pipeline_stages:
-        - docker: {} # K3s thường dùng format docker cho log pods
+        - cri: {} # K3s/Containerd bắt buộc dùng CRI thay vì Docker
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
@@ -69,16 +69,20 @@ spec:
         app: promtail
     spec:
       serviceAccountName: promtail-sa
+      terminationGracePeriodSeconds: 10
       containers:
         - name: promtail
           image: grafana/promtail:2.9.4
           args: ["-config.file=/etc/promtail/config.yml"]
           securityContext:
             runAsUser: 0
-            runAsGroup: 0
+            privileged: true # Cấp quyền tối đa để đọc symlinks trên K3s
           volumeMounts:
             - name: logs
               mountPath: /var/log/pods
+              readOnly: true
+            - name: varlog
+              mountPath: /var/log
               readOnly: true
             - name: config
               mountPath: /etc/promtail
@@ -86,6 +90,9 @@ spec:
         - name: logs
           hostPath:
             path: /var/log/pods
+        - name: varlog # Quan trọng: Phải mount cả /var/log để không bị gãy link
+          hostPath:
+            path: /var/log
         - name: config
           configMap:
             name: promtail-config
