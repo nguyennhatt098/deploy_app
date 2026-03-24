@@ -58,15 +58,6 @@ data:
             regex: (fintech|web-game|web-stock-future)
             action: keep
 
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: namespace
-
-          - source_labels: [__meta_kubernetes_pod_name]
-            target_label: pod
-
-          - source_labels: [__meta_kubernetes_pod_container_name]
-            target_label: container
-
           - action: replace
             replacement: /var/log/pods/*/*/*.log
             target_label: __path__
