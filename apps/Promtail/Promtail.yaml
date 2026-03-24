@@ -61,8 +61,13 @@ data:
         - source_labels: [__meta_kubernetes_pod_container_name]
           target_label: container
 
+        # 🔥 FIX QUAN TRỌNG
         - action: replace
-          replacement: /var/log/pods/*/*/*.log
+          source_labels:
+            - __meta_kubernetes_pod_uid
+            - __meta_kubernetes_pod_container_name
+          separator: /
+          replacement: /var/log/pods/*$1/*$2/*.log
           target_label: __path__
 
 ---
