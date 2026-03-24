@@ -1,48 +1,48 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kibana
-  namespace: kibana
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kibana
-  template:
-    metadata:
-      labels:
-        app: kibana
-    spec:
-      containers:
-        - name: kibana
-          image: docker.elastic.co/kibana/kibana:8.13.0
-          env:
-            - name: ELASTICSEARCH_HOSTS
-              value: "http://elasticsearch-service.elasticsearch.svc.cluster.local:9200"
-            - name: ELASTICSEARCH_USERNAME
-              value: "kibana_system"
-            - name: ELASTICSEARCH_PASSWORD
-              value: "Anhyeuem123@"
-          ports:
-            - containerPort: 5601
-          resources:
-            limits:
-              memory: "1Gi"
-            requests:
-              memory: "512Mi"
-      restartPolicy: Always
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: kibana-service
-  namespace: kibana
-spec:
-  type: NodePort
-  selector:
-    app: kibana
-  ports:
-    - port: 5601
-      targetPort: 5601
-      nodePort: 30601
-      protocol: TCP
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: kibana
+#   namespace: kibana
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: kibana
+#   template:
+#     metadata:
+#       labels:
+#         app: kibana
+#     spec:
+#       containers:
+#         - name: kibana
+#           image: docker.elastic.co/kibana/kibana:8.13.0
+#           env:
+#             - name: ELASTICSEARCH_HOSTS
+#               value: "http://elasticsearch-service.elasticsearch.svc.cluster.local:9200"
+#             - name: ELASTICSEARCH_USERNAME
+#               value: "kibana_system"
+#             - name: ELASTICSEARCH_PASSWORD
+#               value: "Anhyeuem123@"
+#           ports:
+#             - containerPort: 5601
+#           resources:
+#             limits:
+#               memory: "1Gi"
+#             requests:
+#               memory: "512Mi"
+#       restartPolicy: Always
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: kibana-service
+#   namespace: kibana
+# spec:
+#   type: NodePort
+#   selector:
+#     app: kibana
+#   ports:
+#     - port: 5601
+#       targetPort: 5601
+#       nodePort: 30601
+#       protocol: TCP
