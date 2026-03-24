@@ -35,24 +35,36 @@ data:
   config.yml: |
     server:
       http_listen_port: 9080
+      log_level: info
+
+    positions:
+      filename: /run/promtail/positions.yaml
+
     clients:
-      - url: http://10.43.148.211:3100/loki/api/v1/push
+      - url: http://loki:3100/loki/api/v1/push
+
     scrape_configs:
     - job_name: kubernetes-pods-hft
       pipeline_stages:
-        - cri: {} # K3s/Containerd bắt buộc dùng CRI thay vì Docker
+        - cri: {}
+
       kubernetes_sd_configs:
       - role: pod
+
       relabel_configs:
         - source_labels: [__meta_kubernetes_namespace]
           target_label: namespace
+
         - source_labels: [__meta_kubernetes_pod_name]
           target_label: pod
+
         - source_labels: [__meta_kubernetes_pod_container_name]
           target_label: container
+
         - action: replace
           replacement: /var/log/pods/*/*/*.log
           target_label: __path__
+
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -63,36 +75,55 @@ spec:
   selector:
     matchLabels:
       app: promtail
+
   template:
     metadata:
       labels:
         app: promtail
+
     spec:
       serviceAccountName: promtail-sa
       terminationGracePeriodSeconds: 10
+
       containers:
         - name: promtail
           image: grafana/promtail:2.9.4
-          args: ["-config.file=/etc/promtail/config.yml"]
+          args:
+            - -config.file=/etc/promtail/config.yml
+
           securityContext:
             runAsUser: 0
-            privileged: true # Cấp quyền tối đa để đọc symlinks trên K3s
+            privileged: true
+
           volumeMounts:
             - name: logs
               mountPath: /var/log/pods
               readOnly: true
+
             - name: varlog
               mountPath: /var/log
               readOnly: true
+
             - name: config
               mountPath: /etc/promtail
+
+            # ✅ FIX QUAN TRỌNG
+            - name: positions
+              mountPath: /run/promtail
+
       volumes:
         - name: logs
           hostPath:
             path: /var/log/pods
-        - name: varlog # Quan trọng: Phải mount cả /var/log để không bị gãy link
+
+        - name: varlog
           hostPath:
             path: /var/log
+
         - name: config
           configMap:
             name: promtail-config
+
+        # ✅ FIX QUAN TRỌNG
+        - name: positions
+          emptyDir: {}
