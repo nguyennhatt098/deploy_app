@@ -39,6 +39,8 @@ data:
       - url: http://loki-service:3100/loki/api/v1/push
     scrape_configs:
     - job_name: kubernetes-pods
+      pipeline_stages:
+        - docker: {} # K3s thường dùng format docker cho log pods
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
@@ -48,7 +50,6 @@ data:
           target_label: pod
         - source_labels: [__meta_kubernetes_pod_container_name]
           target_label: container
-        # ĐƯỜNG DẪN QUÉT THÔ: Tự tìm mọi file log trong các Pod
         - action: replace
           replacement: /var/log/pods/*/*/*.log
           target_label: __path__
