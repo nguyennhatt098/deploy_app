@@ -35,4 +35,5 @@ spec:
   ports:
     - port: 3000
       targetPort: 3000
+      nodePort: 32000 # Cổng này bạn sẽ dùng để truy cập: http://IP-CUA-BAN:32000
   type: NodePort # Hoặc dùng Ingress để truy cập từ ngoài
