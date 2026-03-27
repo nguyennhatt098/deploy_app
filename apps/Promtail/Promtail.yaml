@@ -1,128 +1,128 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: promtail-sa
-  namespace: elasticsearch
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: promtail-cr
-rules:
-  - apiGroups: [""]
-    resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
-    verbs: ["get", "list", "watch"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: promtail-crb
-subjects:
-  - kind: ServiceAccount
-    name: promtail-sa
-    namespace: elasticsearch
-roleRef:
-  kind: ClusterRole
-  name: promtail-cr
-  apiGroup: rbac.authorization.k8s.io
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: promtail-config
-  namespace: elasticsearch
-data:
-  config.yml: |
-    server:
-      http_listen_port: 9080
-      log_level: info
+# apiVersion: v1
+# kind: ServiceAccount
+# metadata:
+#   name: promtail-sa
+#   namespace: elasticsearch
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRole
+# metadata:
+#   name: promtail-cr
+# rules:
+#   - apiGroups: [""]
+#     resources: ["nodes", "nodes/proxy", "services", "endpoints", "pods"]
+#     verbs: ["get", "list", "watch"]
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: promtail-crb
+# subjects:
+#   - kind: ServiceAccount
+#     name: promtail-sa
+#     namespace: elasticsearch
+# roleRef:
+#   kind: ClusterRole
+#   name: promtail-cr
+#   apiGroup: rbac.authorization.k8s.io
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: promtail-config
+#   namespace: elasticsearch
+# data:
+#   config.yml: |
+#     server:
+#       http_listen_port: 9080
+#       log_level: info
 
-    positions:
-      filename: /run/promtail/positions.yaml
+#     positions:
+#       filename: /run/promtail/positions.yaml
 
-    clients:
-      - url: http://loki-service:3100/loki/api/v1/push
-        batchsize: 102400       # ~100KB
-        batchwait: 1s
-    scrape_configs:
-      - job_name: kubernetes-pods-hft
+#     clients:
+#       - url: http://loki-service:3100/loki/api/v1/push
+#         batchsize: 102400       # ~100KB
+#         batchwait: 1s
+#     scrape_configs:
+#       - job_name: kubernetes-pods-hft
 
-        pipeline_stages:
-          - cri: {}
+#         pipeline_stages:
+#           - cri: {}
 
-        kubernetes_sd_configs:
-          - role: pod
+#         kubernetes_sd_configs:
+#           - role: pod
 
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_namespace]
-            regex: (fintech|web-game|web-stock-future)
-            action: keep
-          - source_labels: [__meta_kubernetes_pod_label_app]
-            regex: (web-stock-future-backend|web-stock-future-runner|web-stock-future-frontend)
-            action: keep
-          - action: replace
-            replacement: /var/log/pods/*/*/*.log
-            target_label: __path__
+#         relabel_configs:
+#           - source_labels: [__meta_kubernetes_namespace]
+#             regex: (fintech|web-game|web-stock-future)
+#             action: keep
+#           - source_labels: [__meta_kubernetes_pod_label_app]
+#             regex: (web-stock-future-backend|web-stock-future-runner|web-stock-future-frontend)
+#             action: keep
+#           - action: replace
+#             replacement: /var/log/pods/*/*/*.log
+#             target_label: __path__
 
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: promtail
-  namespace: elasticsearch
-spec:
-  selector:
-    matchLabels:
-      app: promtail
+# ---
+# apiVersion: apps/v1
+# kind: DaemonSet
+# metadata:
+#   name: promtail
+#   namespace: elasticsearch
+# spec:
+#   selector:
+#     matchLabels:
+#       app: promtail
 
-  template:
-    metadata:
-      labels:
-        app: promtail
+#   template:
+#     metadata:
+#       labels:
+#         app: promtail
 
-    spec:
-      serviceAccountName: promtail-sa
-      terminationGracePeriodSeconds: 10
+#     spec:
+#       serviceAccountName: promtail-sa
+#       terminationGracePeriodSeconds: 10
 
-      containers:
-        - name: promtail
-          image: grafana/promtail:2.9.4
-          args:
-            - -config.file=/etc/promtail/config.yml
+#       containers:
+#         - name: promtail
+#           image: grafana/promtail:2.9.4
+#           args:
+#             - -config.file=/etc/promtail/config.yml
 
-          securityContext:
-            runAsUser: 0
-            privileged: true
+#           securityContext:
+#             runAsUser: 0
+#             privileged: true
 
-          volumeMounts:
-            - name: logs
-              mountPath: /var/log/pods
-              readOnly: true
+#           volumeMounts:
+#             - name: logs
+#               mountPath: /var/log/pods
+#               readOnly: true
 
-            - name: varlog
-              mountPath: /var/log
-              readOnly: true
+#             - name: varlog
+#               mountPath: /var/log
+#               readOnly: true
 
-            - name: config
-              mountPath: /etc/promtail
+#             - name: config
+#               mountPath: /etc/promtail
 
-            # ✅ FIX QUAN TRỌNG
-            - name: positions
-              mountPath: /run/promtail
+#             # ✅ FIX QUAN TRỌNG
+#             - name: positions
+#               mountPath: /run/promtail
 
-      volumes:
-        - name: logs
-          hostPath:
-            path: /var/log/pods
+#       volumes:
+#         - name: logs
+#           hostPath:
+#             path: /var/log/pods
 
-        - name: varlog
-          hostPath:
-            path: /var/log
+#         - name: varlog
+#           hostPath:
+#             path: /var/log
 
-        - name: config
-          configMap:
-            name: promtail-config
+#         - name: config
+#           configMap:
+#             name: promtail-config
 
-        # ✅ FIX QUAN TRỌNG
-        - name: positions
-          emptyDir: {}
+#         # ✅ FIX QUAN TRỌNG
+#         - name: positions
+#           emptyDir: {}
